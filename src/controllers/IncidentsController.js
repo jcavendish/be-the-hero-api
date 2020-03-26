@@ -1,8 +1,22 @@
 const connection = require("../database/connection");
 
+const PAGE_SIZE = 5;
+
 module.exports = {
   async index(request,response) {
-    const incidents = await connection("incidents").select("*");
+    const page = request.query.page || 1;
+
+    const count = await connection("incidents")
+        .count("*")
+        .first();
+
+    const incidents = await connection("incidents")
+        .select("incidents.*", "ongs.name", "ongs.email", "ongs.whatsapp", "ongs.city", "ongs.uf")
+        .join("ongs", "incidents.ong_id", "ongs.id")
+        .limit(PAGE_SIZE)
+        .offset((page - 1) * 5);
+        
+    response.set('x-total-count', count['count(*)']);
     return response.json(incidents);
   },
   async create(request,response) {
