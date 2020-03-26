@@ -4,7 +4,7 @@ const PAGE_SIZE = 5;
 
 module.exports = {
   async index(request,response) {
-    const page = request.query.page || 1;
+    const page = request.query.page > 0 ? request.query.page : 1;
 
     const count = await connection("incidents")
         .count("*")
@@ -15,7 +15,7 @@ module.exports = {
         .join("ongs", "incidents.ong_id", "ongs.id")
         .limit(PAGE_SIZE)
         .offset((page - 1) * 5);
-        
+    
     response.set('x-total-count', count['count(*)']);
     return response.json(incidents);
   },
