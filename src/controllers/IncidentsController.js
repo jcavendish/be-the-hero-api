@@ -39,8 +39,10 @@ module.exports = {
         .select("ong_id")
         .first();
 
-    if (incident.ong_id !== request.headers.authorization) {
-      return response.status(401).send("Operation not permitted");
+    if (!incident || incident.ong_id !== request.headers.authorization) {
+      return response
+          .status(401)
+          .send("Operation not permitted");
     }
     await connection("incidents")
         .where("id", "=", id)
